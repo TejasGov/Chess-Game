@@ -33,3 +33,5 @@ CSS3: For all styling, including the board, pieces, and light/dark modes.
 JavaScript (ES6+): For the entire game engine and interactive logic.
 
 <!-- updated: 2025-08-02 -->
+
+<!-- updated: 2025-08-04 -->
