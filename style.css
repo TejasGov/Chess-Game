@@ -1,0 +1,258 @@
+:root {
+    --bg-color: #f0f2f5;
+    --text-color: #333;
+    --header-color: #2c3e50;
+    --board-border-color: #34495e;
+    --square-light: #f0d9b5;
+    --square-dark: #b58863;
+    --piece-light: #f8f8f8;
+    --piece-dark: #111;
+    --highlight-color: #f39c12;
+    --valid-move-color: rgba(46, 204, 113, 0.5);
+    --valid-move-border: #27ae60;
+    --valid-capture-color: rgba(231, 76, 60, 0.5);
+    --valid-capture-border: #c0392b;
+    --castling-move-color: rgba(142, 68, 173, 0.5);
+    --castling-move-border: #8e44ad;
+    --message-bg: #ecf0f1;
+    --button-bg: #3498db;
+    --button-hover-bg: #2980b9;
+    --modal-bg: #fff;
+}
+
+body.dark-mode {
+    --bg-color: #2c3e50;
+    --text-color: #f0f2f5;
+    --header-color: #ecf0f1;
+    --board-border-color: #7f8c8d;
+    --square-light: #7f8c8d;
+    --square-dark: #34495e;
+    --piece-light: #f0f2f5;
+    --piece-dark: #a9a9a9;
+    --highlight-color: #f1c40f;
+    --valid-move-color: rgba(46, 204, 113, 0.5);
+    --valid-move-border: #27ae60;
+    --valid-capture-color: rgba(231, 76, 60, 0.5);
+    --valid-capture-border: #c0392b;
+    --castling-move-color: rgba(155, 89, 182, 0.5);
+    --castling-move-border: #9b59b6;
+    --message-bg: #34495e;
+    --button-bg: #9b59b6;
+    --button-hover-bg: #8e44ad;
+    --modal-bg: #34495e;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    color: var(--header-color);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+#theme-toggle-btn {
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    font-size: 1em;
+    cursor: pointer;
+    border: 2px solid var(--board-border-color);
+    border-radius: 5px;
+    background-color: transparent;
+    color: var(--board-border-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#theme-toggle-btn:hover {
+    background-color: var(--board-border-color);
+    color: var(--bg-color);
+}
+
+#chessboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#chessboard {
+    display: grid;
+    grid-template-columns: repeat(9, 60px);
+    grid-template-rows: repeat(9, 60px);
+    border: 5px solid var(--board-border-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.square {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.light {
+    background-color: var(--square-light);
+}
+
+.dark {
+    background-color: var(--square-dark);
+}
+
+.piece {
+    user-select: none;
+    cursor: pointer;
+}
+
+.white-piece {
+    color: var(--piece-light);
+    text-shadow: 1px 1px 2px #000;
+}
+
+.black-piece {
+    color: var(--piece-dark);
+    text-shadow: 1px 1px 2px #fff;
+}
+
+body.dark-mode .black-piece {
+    text-shadow: 1px 1px 2px #000;
+}
+
+.selected {
+    border: 3px solid var(--highlight-color);
+    box-shadow: inset 0 0 5px var(--highlight-color);
+}
+
+.valid-move {
+    background-color: var(--valid-move-color) !important;
+    border: 3px solid var(--valid-move-border);
+    box-shadow: inset 0 0 5px var(--valid-move-border);
+}
+
+.valid-capture {
+    background-color: var(--valid-capture-color) !important;
+    border: 3px solid var(--valid-capture-border);
+    box-shadow: inset 0 0 5px var(--valid-capture-border);
+}
+
+.castling-move {
+    background-color: var(--castling-move-color) !important;
+    border: 3px solid var(--castling-move-border);
+    box-shadow: inset 0 0 5px var(--castling-move-border);
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 1.4em;
+    color: var(--text-color);
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: var(--message-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8);
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    transition: background-color 0.3s;
+}
+
+.modal-content h2 {
+    font-size: 2em;
+    color: var(--header-color);
+    margin-bottom: 10px;
+}
+
+.modal-content p {
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.modal-content button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--button-bg);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: var(--confetti-color);
+    animation: fall linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-100px) rotateZ(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.coords {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: var(--board-border-color);
+}
+
+.file-coords {
+    grid-column: span 1;
+    grid-row: 9;
+}
+
+.rank-coords {
+    grid-column: 9;
+    grid-row: span 1;
+}

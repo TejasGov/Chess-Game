@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Chess Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Basic Chess Game</h1>
+    <button id="theme-toggle-btn">Toggle Dark Mode</button>
+    <div id="chessboard-container">
+        <div id="message">White's Turn</div>
+        <div id="chessboard"></div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="winnerMessage"></h2>
+            <button id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
