@@ -5,6 +5,10 @@ const messageElement = document.getElementById('message');
 const gameOverModal = document.getElementById('gameOverModal');
 const winnerMessage = document.getElementById('winnerMessage');
 const playAgainBtn = document.getElementById('playAgainBtn');
+const actionsPanel = document.getElementById('actions-panel');
+const finalResultMessage = document.getElementById('finalResultMessage');
+const shareBtn = document.getElementById('shareBtn');
+const shareFeedback = document.getElementById('shareFeedback');
 
 let isDarkMode = false;
 themeToggleBtn.addEventListener('click', () => {
@@ -12,6 +16,61 @@ themeToggleBtn.addEventListener('click', () => {
     body.classList.toggle('dark-mode', isDarkMode);
     themeToggleBtn.textContent = isDarkMode ? 'Toggle Light Mode' : 'Toggle Dark Mode';
 });
+
+if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+        if (!lastWinner) {
+            if (shareFeedback) {
+                shareFeedback.textContent = 'Finish a game to share your result first.';
+            }
+            return;
+        }
+
+        const shareText = `I just won a game of chess as ${lastWinner} using the Basic Chess Game!`;
+        const shareUrl = window.location.href;
+        const clipboardMessage = `${shareText} Play here: ${shareUrl}`;
+        if (shareFeedback) {
+            shareFeedback.textContent = '';
+        }
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Basic Chess Game',
+                    text: shareText,
+                    url: shareUrl
+                });
+                if (shareFeedback) {
+                    shareFeedback.textContent = 'Result shared! 🎉';
+                }
+                return;
+            } catch (error) {
+                if (error && error.name === 'AbortError') {
+                    if (shareFeedback) {
+                        shareFeedback.textContent = 'Share cancelled.';
+                    }
+                    return;
+                }
+                // Fall through to clipboard fallback if sharing fails for another reason.
+            }
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+                await navigator.clipboard.writeText(clipboardMessage);
+                if (shareFeedback) {
+                    shareFeedback.textContent = 'Result copied to clipboard!';
+                }
+            } catch (clipboardError) {
+                if (shareFeedback) {
+                    shareFeedback.textContent = `Copy this message to share: ${clipboardMessage}`;
+                }
+            }
+        } else if (shareFeedback) {
+            shareFeedback.textContent = `Copy this message to share: ${clipboardMessage}`;
+        }
+    });
+}
 
 const initialBoard = [
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
@@ -28,6 +87,8 @@ let boardState = JSON.parse(JSON.stringify(initialBoard));
 let selectedSquare = null;
 let currentPlayer = 'white';
 let gameOver = false;
+let celebrationTimeout = null;
+let lastWinner = '';
 
 let hasMoved = {
     'whiteKing': false, 'whiteRookA': false, 'whiteRookH': false,
@@ -96,6 +157,40 @@ function renderBoard() {
 
 function updateMessage(message) {
     messageElement.textContent = message;
+}
+
+function showVictoryOptions() {
+    body.classList.add('actions-visible');
+    if (actionsPanel) {
+        actionsPanel.setAttribute('aria-hidden', 'false');
+    }
+    if (shareBtn) {
+        shareBtn.focus();
+    }
+}
+
+function hideVictoryOptions() {
+    body.classList.remove('actions-visible');
+    if (actionsPanel) {
+        actionsPanel.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function clearConfetti() {
+    document.querySelectorAll('.confetti').forEach(confetti => confetti.remove());
+}
+
+function createConfetti() {
+    clearConfetti();
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.top = '-10px';
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.animationDelay = `${Math.random() * 2}s`;
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        document.body.appendChild(confetti);
+    }
 }
 
 function isPathClear(fromRow, fromCol, toRow, toCol, board = boardState) {
@@ -201,11 +296,11 @@ function isSquareAttacked(row, col, attackerColor, board = boardState) {
     return false;
 }
 
-function isKingInCheck(color) {
-    const kingPos = findKing(color);
+function isKingInCheck(color, board = boardState) {
+    const kingPos = findKing(color, board);
     if (!kingPos) return false;
     const opponentColor = color === 'white' ? 'black' : 'white';
-    return isSquareAttacked(kingPos.row, kingPos.col, opponentColor);
+    return isSquareAttacked(kingPos.row, kingPos.col, opponentColor, board);
 }
 
 function isCastlingLegal(fromRow, fromCol, toRow, toCol) {
@@ -339,21 +434,55 @@ function handleCastling(fromRow, fromCol, toCol) {
 function endGame(winnerColor) {
     gameOver = true;
     const winnerName = winnerColor.charAt(0).toUpperCase() + winnerColor.slice(1);
+    lastWinner = winnerName;
+    const victorySummary = `${winnerName} wins! Capture the board and share your victory.`;
     winnerMessage.textContent = `${winnerName} wins!`;
-    gameOverModal.style.display = 'flex';
-    
-    for (let i = 0; i < 100; i++) {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        confetti.style.left = `${Math.random() * 100}vw`;
-        confetti.style.animationDelay = `${Math.random() * 2}s`;
-        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-        document.body.appendChild(confetti);
+    updateMessage(victorySummary);
+    if (shareFeedback) {
+        shareFeedback.textContent = '';
     }
+
+    hideVictoryOptions();
+
+    if (celebrationTimeout) {
+        clearTimeout(celebrationTimeout);
+    }
+
+    gameOverModal.style.display = 'flex';
+    gameOverModal.setAttribute('aria-hidden', 'false');
+    createConfetti();
+
+    celebrationTimeout = setTimeout(() => {
+        gameOverModal.style.display = 'none';
+        gameOverModal.setAttribute('aria-hidden', 'true');
+        clearConfetti();
+        if (finalResultMessage) {
+            finalResultMessage.textContent = victorySummary;
+        }
+        showVictoryOptions();
+        celebrationTimeout = null;
+    }, 3000);
 }
 
 playAgainBtn.addEventListener('click', () => {
+    if (celebrationTimeout) {
+        clearTimeout(celebrationTimeout);
+        celebrationTimeout = null;
+    }
+
     gameOverModal.style.display = 'none';
+    gameOverModal.setAttribute('aria-hidden', 'true');
+    clearConfetti();
+    hideVictoryOptions();
+
+    lastWinner = '';
+    if (finalResultMessage) {
+        finalResultMessage.textContent = '';
+    }
+    if (shareFeedback) {
+        shareFeedback.textContent = '';
+    }
+
     boardState = JSON.parse(JSON.stringify(initialBoard));
     selectedSquare = null;
     currentPlayer = 'white';
@@ -362,7 +491,6 @@ playAgainBtn.addEventListener('click', () => {
         'whiteKing': false, 'whiteRookA': false, 'whiteRookH': false,
         'blackKing': false, 'blackRookA': false, 'blackRookH': false
     };
-    document.querySelectorAll('.confetti').forEach(c => c.remove());
     updateMessage("White's Turn");
     renderBoard();
 });
@@ -397,16 +525,15 @@ function handleSquareClick(event) {
                 updateMessage('Invalid castling move!');
             }
         } else if (isValidMove(fromRow, fromCol, row, col)) {
-            if (boardState[row][col].toLowerCase() === 'k') {
-                 endGame(currentPlayer);
-                 return;
-            }
-            
+            const movingPiece = boardState[fromRow][fromCol];
+            const capturedPiece = boardState[row][col];
+            const movingPlayer = currentPlayer;
+
             const tempBoard = JSON.parse(JSON.stringify(boardState));
             tempBoard[row][col] = tempBoard[fromRow][fromCol];
             tempBoard[fromRow][fromCol] = '';
 
-            if(isKingInCheck(currentPlayer, tempBoard)) {
+            if (isKingInCheck(movingPlayer, tempBoard)) {
                 updateMessage('Invalid move! Your king would be in check.');
                 selectedSquare.classList.remove('selected');
                 selectedSquare = null;
@@ -415,24 +542,29 @@ function handleSquareClick(event) {
                 return;
             }
 
-            if (boardState[fromRow][fromCol].toLowerCase() === 'k') {
-                if (currentPlayer === 'white') hasMoved.whiteKing = true;
+            if (movingPiece.toLowerCase() === 'k') {
+                if (movingPlayer === 'white') hasMoved.whiteKing = true;
                 else hasMoved.blackKing = true;
-            } else if (boardState[fromRow][fromCol].toLowerCase() === 'r') {
+            } else if (movingPiece.toLowerCase() === 'r') {
                 if (fromCol === 0) {
-                    if (currentPlayer === 'white') hasMoved.whiteRookA = true;
+                    if (movingPlayer === 'white') hasMoved.whiteRookA = true;
                     else hasMoved.blackRookA = true;
                 } else if (fromCol === 7) {
-                    if (currentPlayer === 'white') hasMoved.whiteRookH = true;
+                    if (movingPlayer === 'white') hasMoved.whiteRookH = true;
                     else hasMoved.blackRookH = true;
                 }
             }
 
-            boardState[row][col] = boardState[fromRow][fromCol];
+            boardState[row][col] = movingPiece;
             boardState[fromRow][fromCol] = '';
-            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 
-            if (isKingInCheck(currentPlayer)) {
+            const capturedKing = capturedPiece && capturedPiece.toLowerCase() === 'k';
+
+            currentPlayer = movingPlayer === 'white' ? 'black' : 'white';
+
+            if (capturedKing) {
+                endGame(movingPlayer);
+            } else if (isKingInCheck(currentPlayer)) {
                 if (!hasLegalMoves(currentPlayer)) {
                     updateMessage(`${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} is in Checkmate! Game Over.`);
                     endGame(currentPlayer === 'white' ? 'black' : 'white');
@@ -458,4 +590,5 @@ function handleSquareClick(event) {
     }
 }
 
+hideVictoryOptions();
 renderBoard();

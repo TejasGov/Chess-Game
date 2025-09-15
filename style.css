@@ -77,10 +77,99 @@ h1 {
     color: var(--bg-color);
 }
 
+#game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 1100px;
+}
+
 #chessboard-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease;
+}
+
+body.actions-visible #game-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+body.actions-visible #chessboard-container {
+    align-items: flex-start;
+    transform: translateX(-40px);
+}
+
+#actions-panel {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 240px;
+    background-color: var(--message-bg);
+    color: var(--text-color);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+#actions-panel h2 {
+    margin: 0;
+    font-size: 1.6em;
+    color: var(--header-color);
+}
+
+#actions-panel p {
+    margin: 0;
+    line-height: 1.4;
+}
+
+body.actions-visible #actions-panel {
+    display: flex;
+}
+
+.actions-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#actions-panel button {
+    padding: 12px 20px;
+    font-size: 1em;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--button-bg), var(--button-hover-bg));
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#actions-panel button:hover,
+#actions-panel button:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2);
+}
+
+#actions-panel button:focus {
+    outline: 3px solid var(--highlight-color);
+    outline-offset: 3px;
+}
+
+#shareFeedback {
+    min-height: 1.2em;
+    font-size: 0.95em;
+    color: var(--board-border-color);
+}
+
+body.dark-mode #theme-toggle-btn {
+    border-color: var(--piece-light);
+    color: var(--piece-light);
 }
 
 #chessboard {
@@ -202,20 +291,10 @@ body.dark-mode .black-piece {
     color: var(--text-color);
 }
 
-.modal-content button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    background-color: var(--button-bg);
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-    background-color: var(--button-hover-bg);
+.celebration-note {
+    font-size: 1.1em;
+    color: var(--text-color);
+    margin-top: 10px;
 }
 
 .confetti {
@@ -225,6 +304,7 @@ body.dark-mode .black-piece {
     background-color: var(--confetti-color);
     animation: fall linear infinite;
     pointer-events: none;
+    z-index: 1001;
 }
 
 @keyframes fall {
@@ -255,4 +335,33 @@ body.dark-mode .black-piece {
 .rank-coords {
     grid-column: 9;
     grid-row: span 1;
+}
+
+@media (max-width: 900px) {
+    body.actions-visible #game-wrapper {
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+    }
+
+    body.actions-visible #chessboard-container {
+        transform: none;
+        align-items: center;
+    }
+
+    #actions-panel {
+        width: 100%;
+        max-width: 360px;
+        text-align: center;
+    }
+
+    .actions-buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .actions-buttons button {
+        flex: 1;
+    }
 }
