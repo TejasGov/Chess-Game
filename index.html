@@ -9,16 +9,27 @@
 <body>
     <h1>Basic Chess Game</h1>
     <button id="theme-toggle-btn">Toggle Dark Mode</button>
-    <div id="chessboard-container">
-        <div id="message">White's Turn</div>
-        <div id="chessboard"></div>
+    <div id="game-wrapper">
+        <div id="chessboard-container">
+            <div id="message">White's Turn</div>
+            <div id="chessboard"></div>
+        </div>
+        <aside id="actions-panel" aria-hidden="true">
+            <h2>Victory Options</h2>
+            <p id="finalResultMessage" aria-live="polite"></p>
+            <div class="actions-buttons">
+                <button id="shareBtn" type="button">Share</button>
+                <button id="playAgainBtn" type="button">Play Again</button>
+            </div>
+            <p id="shareFeedback" role="status" aria-live="polite"></p>
+        </aside>
     </div>
 
     <!-- Game Over Modal -->
-    <div id="gameOverModal" class="modal-overlay">
+    <div id="gameOverModal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="winnerMessage" aria-describedby="celebrationNote">
         <div class="modal-content">
             <h2 id="winnerMessage"></h2>
-            <button id="playAgainBtn">Play Again</button>
+            <p id="celebrationNote" class="celebration-note">Celebrating your win...</p>
         </div>
     </div>
     
