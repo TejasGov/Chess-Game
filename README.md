@@ -1,4 +1,3 @@
-I wanted to get the feel of building without AI, so this was an initial attempt at doing so....
 
 # Chess-Game
 ♟️
