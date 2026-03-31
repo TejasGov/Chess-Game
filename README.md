@@ -1,3 +1,5 @@
+I wanted to get the feel of building without AI, so this was an initial attempt at doing so....
+
 # Chess-Game
 ♟️
 A simple, two-player web-based chess game built from scratch using HTML, CSS, and JavaScript. This project is a comprehensive example of building a full-featured game with core web technologies.
