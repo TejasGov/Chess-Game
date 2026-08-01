@@ -61,3 +61,5 @@ JavaScript (ES6+): For the entire game engine and interactive logic.
 <!-- updated: 2025-08-29 -->
 
 <!-- updated: 2025-08-30 -->
+
+<!-- updated: 2026-08-01 -->
